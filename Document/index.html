@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Municipal Waste Classification</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+
+    nav {
+      background: #111;
+      color: #fff;
+      padding: 1em 2em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin-left: 1.5em;
+      border-bottom: 2px solid transparent;
+    }
+
+    nav a:hover,
+    nav a.active {
+      border-bottom: 2px solid red;
+    }
+
+    section {
+      display: none;
+      padding-top: 100px;
+    }
+
+    section.active {
+      display: block;
+    }
+
+    #home {
+      background-image: url("{{ url_for('static', filename='muncipal.jpeg') }}");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: white;
+      height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+
+
+    #home h3 {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: normal;
+      font-size: 1.5rem;
+    }
+
+    #home h1 {
+      font-size: 3rem;
+      margin-top: 20px;
+    }
+
+    #home p {
+      margin-top: 10px;
+      font-size: 1.2rem;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn {
+      background: transparent;
+      border: 2px solid #fff;
+      padding: 12px 24px;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 30px;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    #about {
+      background: #fff;
+      color: #333;
+    }
+
+    .container {
+      padding: 80px 40px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    h4 {
+      color: crimson;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .title-desc {
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+
+    .about-section {
+      display: flex;
+      flex-direction: row;
+      gap: 40px;
+    }
+
+    .about-section > div {
+      flex: 1;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    ul li::before {
+      content: '\2713';
+      color: crimson;
+      margin-right: 10px;
+    }
+
+    .learn-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: 2px solid crimson;
+      background: transparent;
+      color: crimson;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    #predict {
+      background: #fff;
+      color: #333;
+      text-align: center;
+      padding: 100px 20px;
+    }
+
+    .upload-section {
+      margin-bottom: 30px;
+    }
+
+    input[type=file] {
+      padding: 10px;
+      width: 60%;
+      max-width: 500px;
+      border: none;
+      outline: none;
+      background: #f9f9f9;
+      font-size: 1rem;
+    }
+
+    button.predict {
+      background: #28a745;
+      color: #fff;
+      padding: 12px 30px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    button.predict:hover {
+      background: #218838;
+    }
+
+    #contact {
+      background: #fff;
+      color: #333;
+      padding: 100px 20px;
+      text-align: center;
+    }
+
+    .contact-grid {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 40px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .contact-info,
+    .contact-form {
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .contact-info div {
+      margin-bottom: 25px;
+      font-size: 1rem;
+    }
+
+    .contact-info span {
+      color: crimson;
+      font-weight: bold;
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .contact-form button {
+      background: crimson;
+      color: #fff;
+      border: none;
+      padding: 12px 30px;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .contact-form button:hover {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+
+<body>
+  <nav>
+    <div><strong>MUNICIPAL WASTE CLASSIFICATION</strong></div>
+    <div>
+      <a href="#" class="nav-link active" data-target="home">Home</a>
+      <a href="#" class="nav-link" data-target="about">About</a>
+      <a href="#" class="nav-link" data-target="predict">Predict</a>
+      <a href="#" class="nav-link" data-target="contact">Contact</a>
+    </div>
+  </nav>
+
+  <section id="home" class="active">
+    <h3>Welcome to <strong>municipal waste classification</strong></h3>
+    <h1>MUNICIPAL WASTE CLASSIFICATION</h1>
+    <p>This platform allows you to upload images of waste materials, and our advanced machine-learning model will classify them into appropriate categories. Proper waste classification helps in efficient recycling and waste management, making our environment cleaner and more sustainable.</p>
+    <button class="btn">GET STARTED</button>
+  </section>
+
+  <section id="about">
+    <div class="container">
+      <h4>ABOUT</h4>
+      <h2>Learn More <span style="color: crimson">About Us</span></h2>
+      <p class="title-desc">GreenGuard Insights is a pioneering organization dedicated to enhancing the efficiency and sustainability of municipal waste management.</p>
+
+      <div class="about-section">
+        <div>
+          <ul>
+            <li>Comprehensive analysis and classification of municipal waste based on type and recyclability.</li>
+            <li>Continuous monitoring of waste processing to ensure efficient recycling and disposal.</li>
+            <li>Innovative solutions to minimize landfill use by identifying and separating recyclable materials early in the waste management process.</li>
+          </ul>
+        </div>
+        <div>
+          <p>Our team is our greatest asset. We are a diverse group of experts in environmental science, data analytics, software engineering, and waste management. Together, we tackle the challenges of municipal waste classification and management.</p>
+          <button class="learn-btn">Learn More</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="predict">
+    <h1>Image Classification</h1>
+    <form action="/predict" method="POST" enctype="multipart/form-data">
+      <div class="upload-section">
+        <label for="imageUpload">Upload Your Image:</label>
+        <input type="file" id="imageUpload" name="pc_image" accept="image/*" required>
+      </div>
+      <button type="submit" class="predict">Predict</button>
+    </form>
+  </section>
+
+  <section id="contact">
+    <h4>CONTACT</h4>
+    <h2>Contact <span style="color: crimson">Us</span></h2>
+    <p class="title-desc">We are here to help you make the best choices for a sustainable environment and effective waste management. Reach out for more information about our services.</p>
+
+    <div class="contact-grid">
+      <div class="contact-info">
+        <div><span>Location:</span><br>Medipallysam,<br>Hyderabad 535022</div>
+        <div><span>Email:</span><br>support@greenguard.com</div>
+        <div><span>Call:</span><br>+1 5589 55488 555</div>
+      </div>
+
+      <div class="contact-form">
+        <form>
+          <input type="text" placeholder="Your Name" required>
+          <input type="email" placeholder="Your Email" required>
+          <input type="text" placeholder="Subject" required>
+          <textarea rows="5" placeholder="Message"></textarea>
+          <button type="submit">Send Message</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const navLinks = document.querySelectorAll(".nav-link");
+    const sections = document.querySelectorAll("section");
+
+    navLinks.forEach(link => {
+      link.addEventListener("click", e => {
+        e.preventDefault();
+        const targetId = link.getAttribute("data-target");
+
+        sections.forEach(sec => sec.classList.remove("active"));
+        document.getElementById(targetId).classList.add("active");
+
+        navLinks.forEach(a => a.classList.remove("active"));
+        link.classList.add("active");
+      });
+    });
+  </script>
+</body>
+</html>  
